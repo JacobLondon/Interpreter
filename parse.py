@@ -17,14 +17,14 @@ class Token:
         return f'Token({self.type}, {self.value})'
 
 class Lexer:
-    
+
     def __init__(self, filename=None, text=None):
         if filename is not None:
             self.text = open(filename, 'r').read()
         elif text is not None:
             self.text = text
         else:
-            raise "What no file or text?"
+            raise Exception("What no file or text?")
         self.index = 0
         self.current = self.text[self.index]
 
@@ -46,8 +46,14 @@ class Lexer:
             number.append(self.current)
             self.advance()
 
+        dots = number.count('.')
         result = ''.join(number)
-        return float(result)
+        if dots > 1:
+            raise Exception("Invalid floating point number")
+        if dots == 1:
+            return float(result)
+        else:
+            return int(result)
 
     def next_token(self):
 
@@ -79,7 +85,7 @@ class Lexer:
                 self.advance()
                 return Token(RPAREN, ')')
 
-            raise "Invalid token"
+            raise Exception("Invalid token")
         
         return Token(EOF, None)
 
@@ -92,7 +98,7 @@ class Parser:
         if self.current_token.type == token_type:
             self.current_token = self.lexer.next_token()
         else:
-            raise "Invalid syntax"
+            raise Exception("Invalid syntax")
 
     def factor(self):
         token = self.current_token
